@@ -1,0 +1,115 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const WritingAssistant = () => {
+  const [userText, setUserText] = useState('');
+  const [improvedText, setImprovedText] = useState('');
+  const [loadingText, setLoadingText] = useState(false);
+  const [loadingSpelling, setLoadingSpelling] = useState(false);
+
+  const handleTextChange = (event) => {
+    setUserText(event.target.value);
+  };
+
+  const handleImproveText = async () => {
+    setLoadingText(true);
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      toast.error('No token found. Please log in.');
+      setLoadingText(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/writing-assistant',
+        { text: userText },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setImprovedText(response.data.improved_text);
+      toast.success('Text improved successfully!');
+    } catch (error) {
+      console.error('Error improving text:', error.response ? error.response.data : error.message);
+      toast.error('Error improving text!');
+    }
+    setLoadingText(false);
+  };
+
+  const handleImproveTextSpelling = async () => {
+    setLoadingSpelling(true);
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      toast.error('No token found. Please log in.');
+      setLoadingSpelling(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/writing-assistant-spelling',
+        { text: userText },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setImprovedText(response.data.improved_text);
+      toast.success('Mistakes identified successfully!');
+    } catch (error) {
+      console.error('Error improving text:', error.response ? error.response.data : error.message);
+      toast.error('Error identifying mistakes!');
+    }
+    setLoadingSpelling(false);
+  };
+
+  return (
+    <div className="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
+      <ToastContainer />
+      <h2 className="text-4xl font-bold text-blue-800 mb-4 tracking-wide">Writing Assistant</h2>
+
+      <textarea
+        className="w-full max-w-2xl p-4 border-2 border-purple-300 rounded-xl mb-4 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-800"
+        rows="6"
+        value={userText}
+        onChange={handleTextChange}
+        placeholder="Enter your text here..."
+      />
+
+      <div className="flex flex-row gap-4 mt-2">
+        <button
+          onClick={handleImproveText}
+          className="bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105 font-semibold"
+          disabled={loadingText}
+        >
+          {loadingText ? 'Improving Text...' : 'Improve Text'}
+        </button>
+
+        <button
+          onClick={handleImproveTextSpelling}
+          className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105 font-semibold"
+          disabled={loadingSpelling}
+        >
+          {loadingSpelling ? 'Identifying Mistakes...' : 'Identify Mistakes'}
+        </button>
+      </div>
+
+      {improvedText && (
+        <div className="bg-white shadow-lg rounded-xl p-6 mt-6 w-full max-w-2xl">
+          <h4 className="text-lg font-semibold text-purple-800 mb-2">Improved Text:</h4>
+          <p className="text-gray-800 leading-relaxed">{improvedText}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default WritingAssistant;
