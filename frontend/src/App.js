@@ -10,6 +10,12 @@ import WritingAssistant from './pages/WritingAssistant';
 import DocumentSimplifier from './pages/DocumentSimplifier';
 import MindMapGenerator from './pages/MindMapGenerator';
 import DocumentSupport from './pages/DocumentSupport';
+import CustomizedLearningPathsPage from './pages/CustomizedLearningPath';
+import MildLearningPathPage from './pages/MildLearningPath';
+import ModerateLearningPathPage from './pages/ModerateLearningPath';
+import MemoryGame from './pages/MemoryGame';
+import SevereLearningPathPage from './pages/SevereLearningPath';
+import PhonologicalAwarenessAssistant from './pages/PhonologicalAssistant';
 
 function App() {
   return (
@@ -25,6 +31,12 @@ function App() {
           <Route path="/document-simplifier" element={<DocumentSimplifier />} />
           <Route path='/mindmap-generator' element={<MindMapGenerator />} />
           <Route path='/document-support' element={<DocumentSupport />} />
+          <Route path='/customized-learning-path' element={<CustomizedLearningPathsPage/>} />
+          <Route path='/mild-learning-path' element={<MildLearningPathPage/>} />
+          <Route path='/moderate-learning-path' element={<ModerateLearningPathPage/>} />
+          <Route path='/severe-learning-path' element={<SevereLearningPathPage/>} />
+          <Route path='/phonological-assistant' element={<PhonologicalAwarenessAssistant/>} />
+          <Route path='/memory-game' element={<MemoryGame/>} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
         </Routes>

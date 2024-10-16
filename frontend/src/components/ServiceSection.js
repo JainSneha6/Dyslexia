@@ -10,6 +10,7 @@ const services = [
   {
     title: 'Customized Learning Plans',
     description: 'Personalized learning plans that cater to individual strengths and needs.',
+    link:'/customized-learning-path'
   },
   {
     title: 'Reading Assistance',
