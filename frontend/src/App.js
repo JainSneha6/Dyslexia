@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import GrayOralReadingTest from './pages/GrayOralReading';
 import ReadingAssistanceTool from './pages/ReadingAssisstanceTool';
 import WritingAssistant from './pages/WritingAssistant';
+import DocumentSimplifier from './pages/DocumentSimplifier';
 
 function App() {
   return (
@@ -17,8 +18,9 @@ function App() {
           <Route path="/dyslexia-screening-tests" element={<DyslexiaScreeningTestsPage />} />
           <Route path="/kauffman-memory-test" element={<KauffmanMemoryTest />} />
           <Route path="/gray-oral-reading" element={<GrayOralReadingTest />} />
-          <Route path="/reading-assistance" element={<ReadingAssistanceTool/>} />
-          <Route path="/writing-assistant" element={<WritingAssistant/>} />
+          <Route path="/reading-assistance" element={<ReadingAssistanceTool />} />
+          <Route path="/writing-assistant" element={<WritingAssistant />} />
+          <Route path="/document-simplifier" element={<DocumentSimplifier />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
         </Routes>
