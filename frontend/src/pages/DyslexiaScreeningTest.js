@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaCheckCircle } from 'react-icons/fa'; // Tick mark icon
+import { FaCheckCircle, FaSoundcloud, FaBrain, FaBook } from 'react-icons/fa'; // Icons for the cards
 
 const tests = [
   {
     title: 'Phonological Awareness Test',
     description: 'A test designed to evaluate the ability to recognize and manipulate the sounds of spoken language.',
+    icon: <FaSoundcloud className="text-blue-700 text-5xl" />,
   },
   {
     title: 'Kauffman Assessment Battery Test',
     description: 'A comprehensive assessment used to evaluate memory and cognitive abilities, helping identify learning differences.',
     link: '/kauffman-memory-test',
     localStorageKey: 'kauffmanTestCompleted', // Key for tracking completion
+    icon: <FaBrain className="text-green-700 text-5xl" />,
   },
   {
     title: 'Gray Oral Reading Test',
     description: 'A standardized test used to measure reading fluency and comprehension skills in individuals.',
-    link:'/gray-oral-reading'
+    link: '/gray-oral-reading',
+    icon: <FaBook className="text-red-700 text-5xl" />,
   },
 ];
 
@@ -50,8 +53,9 @@ const DyslexiaScreeningTestsPage = () => {
             className={`bg-white p-6 rounded-lg shadow-md transform transition-all duration-700 ease-out
               ${isVisible ? `animate-crazyCardAnimation delay-${index * 200}` : 'opacity-0'}`}
           >
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold text-blue-700 mb-2">
+            <div className="flex items-center mb-4">
+              {test.icon}
+              <h3 className="text-xl font-bold text-blue-700 ml-4">
                 {test.link ? (
                   <Link to={test.link} className="hover:underline">
                     {test.title}
@@ -62,7 +66,7 @@ const DyslexiaScreeningTestsPage = () => {
               </h3>
               {completedTests[test.title] && (
                 <FaCheckCircle
-                  className="text-green-500 text-4xl transition-transform transform hover:scale-110"
+                  className="text-green-500 text-4xl ml-auto transition-transform transform hover:scale-110"
                   style={{ filter: 'drop-shadow(0px 4px 6px rgba(0, 128, 0, 0.4))' }}
                 />
               )}

@@ -9,6 +9,7 @@ import ReadingAssistanceTool from './pages/ReadingAssisstanceTool';
 import WritingAssistant from './pages/WritingAssistant';
 import DocumentSimplifier from './pages/DocumentSimplifier';
 import MindMapGenerator from './pages/MindMapGenerator';
+import DocumentSupport from './pages/DocumentSupport';
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
           <Route path="/reading-assistance" element={<ReadingAssistanceTool />} />
           <Route path="/writing-assistant" element={<WritingAssistant />} />
           <Route path="/document-simplifier" element={<DocumentSimplifier />} />
-          <Route path='/mindmap-generator' element={<MindMapGenerator/>}/>
+          <Route path='/mindmap-generator' element={<MindMapGenerator />} />
+          <Route path='/document-support' element={<DocumentSupport />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
         </Routes>

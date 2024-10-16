@@ -4,7 +4,7 @@ import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/build/pdf';
 import { jsPDF } from 'jspdf';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ReactFlow, { MiniMap, Controls, Background } from 'reactflow';
+import ReactFlow, { MiniMap, Controls, Background, ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 // Set the workerSrc to the pdf.worker.js file from pdfjs-dist
@@ -14,7 +14,7 @@ const MindMapGenerator = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [simplifiedText, setSimplifiedText] = useState('');
     const [importantWords, setImportantWords] = useState([]);
-    const [importantPoints, setImportantPoints] = useState([]); // State for important points
+    const [importantPoints, setImportantPoints] = useState([]);
     const [message, setMessage] = useState('');
 
     const handleFileChange = (event) => {
@@ -82,18 +82,16 @@ const MindMapGenerator = () => {
         }
     };
 
-    console.log(importantPoints)
-
     const handleDownloadPDF = () => {
         if (!simplifiedText) {
             setMessage('No simplified text to download.');
             return;
         }
-    
+
         const doc = new jsPDF();
         doc.setFontSize(12);
         const lines = doc.splitTextToSize(simplifiedText, 190);
-        let yPosition = 10; 
+        let yPosition = 10;
         const lineHeight = 10;
 
         lines.forEach((line) => {
@@ -112,7 +110,7 @@ const MindMapGenerator = () => {
         let highlightedText = text;
         importantWords.forEach(word => {
             const regex = new RegExp(`(${word})`, 'gi');
-            highlightedText = highlightedText.replace(regex, '<mark>$1</mark>'); 
+            highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
         });
         return highlightedText;
     };
@@ -123,12 +121,12 @@ const MindMapGenerator = () => {
             <h1 className="text-4xl font-bold mb-8 text-blue-800 text-center">AI-Powered Notes and MindMap Generator</h1>
 
             <div className="mb-4 w-full max-w-md">
-                <input 
-                    type="file" 
-                    name='file' 
-                    accept=".pdf" 
-                    onChange={handleFileChange} 
-                    className="block w-full border border-gray-300 rounded-md p-2 mb-4" 
+                <input
+                    type="file"
+                    name='file'
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className="block w-full border border-gray-300 rounded-md p-2 mb-4"
                 />
             </div>
 
@@ -145,7 +143,7 @@ const MindMapGenerator = () => {
                 <div className="mt-4 bg-white shadow-lg rounded-lg p-6 w-full max-w-4xl">
                     <h2 className="text-xl font-bold">Simplified Text:</h2>
                     <p className="mt-2 whitespace-pre-wrap text-gray-700" dangerouslySetInnerHTML={{ __html: highlightImportantWords(simplifiedText, importantWords) }} />
-                    
+
                     <button
                         className="bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600 transition duration-300 ease-in-out"
                         onClick={handleDownloadPDF}
@@ -166,59 +164,108 @@ const MindMapGenerator = () => {
 };
 
 const MindMap = ({ importantPoints }) => {
-    const elements = createMindMapElements(importantPoints);
+    const { nodes, edges } = createMindMapElements(importantPoints);
 
     return (
         <div style={{ height: '500px', width: '100%' }}>
-            <ReactFlow
-                elements={elements}
-                snapToGrid={true}
-                snapGrid={[15, 15]}
-                style={{ background: '#f0f0f0' }}
-            >
-                <MiniMap />
-                <Controls />
-                <Background color="#aaa" gap={16} />
-            </ReactFlow>
+            <ReactFlowProvider>
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    snapToGrid={true}
+                    snapGrid={[15, 15]}
+                    style={{ background: '#f0f0f0' }}
+                >
+                    <MiniMap />
+                    <Controls />
+                    <Background color="#aaa" gap={16} />
+                </ReactFlow>
+            </ReactFlowProvider>
         </div>
     );
 };
 
 const createMindMapElements = (points) => {
-    const elements = [];
+    const nodes = [];
+    const edges = [];
+    const centerX = 500;  // X position for center
+    const centerY = 300;  // Y position for center
+    const radius = 400;   // Increased radius for more spacing between nodes
 
     points.forEach((point, index) => {
-        const [name, childrenText] = point.split(':');
-        const trimmedName = name.trim();
-        const children = childrenText ? childrenText.split(',').map(child => child.trim()) : [];
-
         const nodeId = `${index + 1}`;
-        elements.push({
+
+        // Angle calculation for radial placement
+        const angle = (index / points.length) * 2 * Math.PI;
+
+        // X and Y positions based on angle and radius for circular distribution
+        const xPos = centerX + radius * Math.cos(angle);
+        const yPos = centerY + radius * Math.sin(angle);
+
+        // Create a node for each important point with larger size
+        nodes.push({
             id: nodeId,
-            data: { label: trimmedName }, // Name before the colon
-            position: { x: Math.random() * 800, y: Math.random() * 600 },
+            data: { label: point },
+            position: {
+                x: xPos,
+                y: yPos
+            },
+            style: {
+                width: 350,  // Increased width
+                height: 150,  // Increased height
+                backgroundColor: '#b2ebf2',
+                backgroundImage: 'linear-gradient(to right, #e0f7fa, #b2ebf2)',
+                border: '2px solid #00796b',
+                borderRadius: '15px',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                fontSize: '18px',  // Increased font size for better readability
+                padding: '25px',  // Increased padding to give space to the text
+                wordWrap: 'break-word',
+            }
         });
 
-        // If there are children, create child nodes
-        children.forEach((child, childIndex) => {
-            const childNodeId = `${nodeId}-${childIndex + 1}`;
-            elements.push({
-                id: childNodeId,
-                data: { label: child }, // Child name
-                position: { x: Math.random() * 800, y: Math.random() * 600 },
+        // Connect each node to the center node (root) with curved edges
+        if (index > 0) {
+            edges.push({
+                id: `e${index}-0`,
+                source: '0',
+                target: nodeId,
+                animated: true,
+                type: 'bezier',  // Curved edge
+                style: { stroke: '#00796b' }
             });
-
-            // Create an edge for the connection
-            elements.push({
-                id: `edge-${nodeId}-${childNodeId}`,
-                source: nodeId,
-                target: childNodeId,
-            });
-        });
+        }
     });
 
-    return elements;
+    // Add the central node (root of the mind map) with a larger size
+    nodes.push({
+        id: '0',
+        data: { label: 'Central Idea' },  // You can set this label based on your content
+        position: { x: centerX, y: centerY },
+        style: {
+            width: 350,  // Larger central node
+            height: 150,
+            backgroundColor: '#fff59d',  // Different color for central node
+            border: '2px solid #fbc02d',
+            borderRadius: '20px',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+            fontSize: '20px',  // Slightly larger font for central node
+            padding: '30px',
+            fontWeight: 'bold',
+        }
+    });
+
+    return { nodes, edges };
 };
+
 
 
 export default MindMapGenerator;
