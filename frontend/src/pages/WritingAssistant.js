@@ -88,7 +88,7 @@ const WritingAssistant = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
+    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <ToastContainer />
       <h2 className="text-4xl font-bold text-blue-800 mb-4 tracking-wide">Writing Assistant</h2>
 

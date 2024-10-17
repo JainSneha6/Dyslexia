@@ -75,7 +75,7 @@ const Chatbot = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }} >
+    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }} >
       <h1 className="text-5xl font-semibold text-blue-700 mb-8"> Dyslexia Support Chatbot</h1>
 
       <div className="w-full max-w-3xl flex flex-col bg-white rounded-3xl shadow-lg overflow-hidden" style={{ height: '80vh' }}>

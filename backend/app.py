@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 import os
 import google.generativeai as genai
 import re
+import traceback
 
 # Configure the Generative AI API
 API_KEY = "AIzaSyC6iqFmmBrHeAzOu4VSgO7SYCkNtmwCZM8"
@@ -20,6 +21,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['JWT_SECRET_KEY'] = 'super-secret-key'  # Change this to a secure random key
 db = SQLAlchemy(app)
 jwt = JWTManager(app)  # Initialize JWT Manager
+
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -243,7 +247,7 @@ def simplify_text(text):
     
 def imp_words(text):
     prompt = (
-        "Give me only important words from the text in the form of an array.:\n"
+        "Give me only most important words from the text in the form of an array.:\n"
         f"'{text}'"
     )
     try:
@@ -377,6 +381,103 @@ def ask():
     except Exception as e:
         print(f"Error generating content: {e}")
         return jsonify(message='Error generating improved text!'), 500
+    
+total_questions = 0
+correct_answers = 0
+
+def allowed_file(filename):
+    """Check if the uploaded file has a valid extension."""
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+def check_spelling_from_image(img_path, word):
+    """Check spelling of the word in the uploaded image."""
+    global correct_answers
+    global total_questions
+    try:
+        # Upload the image file to Gemini
+        user_image_file = genai.upload_file(path=img_path)
+        
+        # Generate content using the Gemini model to check the spelling
+        prompt = f"What is the word written in the image? Give me only the word."
+        response = model.generate_content([user_image_file, prompt])
+        
+        # Extract the result from the response
+        result = response.text.strip()
+        print(f"Gemini API response: {result}")
+
+        # Increment total questions count
+        total_questions += 1
+
+        if result.lower() == word.lower():
+            correct_answers += 1
+            return 'Correct'
+        return 'Incorrect'
+        
+    except Exception as e:
+        print(f"An error occurred while checking spelling: {e}")
+        traceback.print_exc()  # Print stack trace for debugging
+        raise
+
+@app.route('/api/upload_image', methods=['POST'])
+def upload_image():
+    """Handle image upload and check spelling."""
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image file provided'}), 400
+
+        image_file = request.files['image']
+        word = request.form.get('word')
+
+        if not image_file or not allowed_file(image_file.filename):
+            return jsonify({'error': 'Invalid or no image file provided'}), 400
+
+        if not word:
+            return jsonify({'error': 'No word provided'}), 400
+
+        # Save the uploaded image file with a filename based on the word
+        filename = secure_filename(f'{word}.png')
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        image_file.save(filepath)
+
+        # Check spelling from the image
+        result = check_spelling_from_image(filepath.replace('\\','/'), word)
+
+        return jsonify({'result': result, 'word': word})
+
+    except Exception as e:
+        # Log and return the error
+        print(f"An error occurred while processing the image: {e}")
+        traceback.print_exc()  # Print stack trace for debugging
+        return jsonify({'error': 'An error occurred while processing the image'}), 500
+
+@app.route('/api/submit_results', methods=['POST'])
+def submit_results():
+    """Handle submission of results and calculate score."""
+    global total_questions
+    global correct_answers
+
+    try:
+        # Calculate score
+        if total_questions == 0:
+            return jsonify({'score': 0, 'total_questions': 0, 'correct_answers': 0})
+
+        score_percentage = (correct_answers / total_questions) * 100
+
+        # Reset counters
+        total_questions = 0
+        correct_answers = 0
+
+        return jsonify({
+            'score': score_percentage,
+            'total_questions': total_questions,
+            'correct_answers': correct_answers
+        })
+
+    except Exception as e:
+        print(f"An error occurred while calculating the score: {e}")
+        traceback.print_exc()  # Print stack trace for debugging
+        return jsonify({'error': 'An error occurred while calculating the score'}), 500
     
     
 if __name__ == '__main__':

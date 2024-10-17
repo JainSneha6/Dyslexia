@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from "./pages/Homepage";
 import DyslexiaScreeningTestsPage from "./pages/DyslexiaScreeningTest";
-import KauffmanMemoryTest from './pages/KauffmanMemoryTest';
+import MemoryTest from './pages/KauffmanMemoryTest';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import GrayOralReadingTest from './pages/GrayOralReading';
@@ -18,6 +18,7 @@ import SevereLearningPathPage from './pages/SevereLearningPath';
 import PhonologicalAwarenessAssistant from './pages/PhonologicalAssistant';
 import ReadingComprehension from './pages/ReadingComprehension';
 import Chatbot from './pages/Chatbot';
+import Test1 from './pages/PhonologicAwarenessTest';
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/dyslexia-screening-tests" element={<DyslexiaScreeningTestsPage />} />
-          <Route path="/kauffman-memory-test" element={<KauffmanMemoryTest />} />
+          <Route path="/kauffman-memory-test" element={<MemoryTest />} />
           <Route path="/gray-oral-reading" element={<GrayOralReadingTest />} />
           <Route path="/reading-assistance" element={<ReadingAssistanceTool />} />
           <Route path="/writing-assistant" element={<WritingAssistant />} />
@@ -39,6 +40,7 @@ function App() {
           <Route path='/severe-learning-path' element={<SevereLearningPathPage/>} />
           <Route path='/phonological-assistant' element={<PhonologicalAwarenessAssistant/>} />
           <Route path='/reading-comprehension' element={<ReadingComprehension/>} />
+          <Route path='phonological-awareness-test' element={<Test1/>} />
           <Route path='/memory-game' element={<MemoryGame/>} />
           <Route path='/chatbot' element={<Chatbot/>} />
           <Route path="/signup" element={<Signup />} />

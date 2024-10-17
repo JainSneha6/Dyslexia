@@ -24,7 +24,6 @@ const MildLearningPathPage = () => {
   useEffect(() => {
     setIsVisible(true);
 
-    // Check for completed assistance options
     const completionStatus = {};
     readingAssistanceOptions.forEach(option => {
       if (option.localStorageKey) {

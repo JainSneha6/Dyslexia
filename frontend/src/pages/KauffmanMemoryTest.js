@@ -1,203 +1,129 @@
 import React, { useState, useEffect } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
-import { shapes, colors, shapeColorSequences } from '../utils/KauffmanMemoryTest';
+import { FaApple, FaDog, FaCar, FaRocket, FaCat, FaFish } from 'react-icons/fa';
 
-const KauffmanMemoryTest = () => {
-  const [currentSequenceIndex, setCurrentSequenceIndex] = useState(0);
-  const [currentSequence, setCurrentSequence] = useState([]);
-  const [userSelections, setUserSelections] = useState([]);
-  const [showSequence, setShowSequence] = useState(true);
-  const [testCompleted, setTestCompleted] = useState(false);
-  const [totalScore, setTotalScore] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+const MemoryTest = () => {
+  const [sequence, setSequence] = useState([]);
+  const [userSequence, setUserSequence] = useState([]);
+  const [isRevealing, setIsRevealing] = useState(true);
+  const [score, setScore] = useState(null);
+  const [testType, setTestType] = useState('icons'); // 'icons', 'words', or 'audio'
+  const sequenceLength = 4; // Length of the sequence to display
+
+  // Sample datasets
+  const icons = [
+    { id: 'apple', icon: <FaApple /> },
+    { id: 'dog', icon: <FaDog /> },
+    { id: 'car', icon: <FaCar /> },
+    { id: 'rocket', icon: <FaRocket /> },
+    { id: 'cat', icon: <FaCat /> },
+    { id: 'fish', icon: <FaFish /> }
+  ];
+
+  const words = [
+    { id: 'apple', word: 'Apple' },
+    { id: 'dog', word: 'Dog' },
+    { id: 'car', word: 'Car' },
+    { id: 'rocket', word: 'Rocket' },
+    { id: 'cat', word: 'Cat' },
+    { id: 'fish', word: 'Fish' }
+  ];
+
+  const audio = [
+    { id: 'apple', sound: 'sounds/apple.mp3' },
+    { id: 'dog', sound: 'sounds/dog.mp3' },
+    { id: 'car', sound: 'sounds/car.mp3' },
+    { id: 'rocket', sound: 'sounds/rocket.mp3' },
+    { id: 'cat', sound: 'sounds/cat.mp3' },
+    { id: 'fish', sound: 'sounds/fish.mp3' }
+  ];
 
   useEffect(() => {
-    checkLoginStatus();
-    checkTestCompletion(); // Check if test was completed in local storage
-  }, []);
-
-  useEffect(() => {
-    if (isLoggedIn && currentSequenceIndex < shapeColorSequences.length && !testCompleted) {
-      setCurrentSequence(shapeColorSequences[currentSequenceIndex]);
-      setUserSelections([]);
-      setShowSequence(true);
-
-      const timer = setTimeout(() => {
-        setShowSequence(false);
-      }, 10000); // Show sequence for 10 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [currentSequenceIndex, isLoggedIn, testCompleted]);
-
-  const checkTestCompletion = () => {
-    const savedScore = localStorage.getItem('totalScore');
-    const completed = localStorage.getItem('testCompleted') === 'true';
-
-    if (completed) {
-      setTestCompleted(true);
-      setTotalScore(savedScore ? parseInt(savedScore, 10) : 0);
-    }
-  };
-
-  const checkLoginStatus = async () => {
-    try {
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        toast.error('Please login to access the test.');
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 2000);
-        return;
-      }
-
-      const response = await axios.get('http://localhost:5000/api/check-login', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.data.loggedIn) {
-        setIsLoggedIn(true);
-        toast.success('Login verified successfully!');
-      } else {
-        handleNotLoggedIn();
-      }
-    } catch (error) {
-      handleNotLoggedIn();
-    }
-  };
-
-  const handleNotLoggedIn = () => {
-    toast.error('Unauthorized. Please login again.');
+    // Generate a random sequence based on the selected test type
+    const dataset = testType === 'icons' ? icons : testType === 'words' ? words : audio;
+    const randomSequence = generateRandomSequence(dataset, sequenceLength);
+    setSequence(randomSequence);
+    
+    // Hide the sequence after 10 seconds to challenge the user's memory
     setTimeout(() => {
-      window.location.href = '/login';
-    }, 2000);
+      setIsRevealing(false);
+    }, 10000);
+  }, [testType]);
+
+  const generateRandomSequence = (dataArray, length) => {
+    // Shuffle and select a random sequence from the provided dataset
+    const shuffled = [...dataArray].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, length);
   };
 
-  const handleSelection = (shape, color) => {
-    if (userSelections.length < currentSequence.length) {
-      setUserSelections([...userSelections, { shape, color }]);
-      // If 4 shapes have been selected, stop further selections
-      if (userSelections.length + 1 === 4) {
-        checkSequence();
-      }
-    }
+  const handleUserInput = (item) => {
+    setUserSequence((prev) => [...prev, item]);
   };
 
-  const checkSequence = () => {
-    const isCorrectSequence = userSelections.every(
-      (selection, index) =>
-        selection.shape === currentSequence[index].shape &&
-        selection.color === currentSequence[index].color
-    );
-
-    if (isCorrectSequence) {
-      setTotalScore((prevTotalScore) => prevTotalScore + 1); // Update total score
-      toast.success('Correct sequence!');
-    } else {
-      toast.error('Incorrect sequence!');
-    }
-
-    if (currentSequenceIndex === shapeColorSequences.length - 1) {
-      saveScore();
-    } else {
-      setCurrentSequenceIndex((prevIndex) => prevIndex + 1);
-    }
+  const handleSubmit = () => {
+    // Calculate the score based on user input directly in the frontend
+    const score = calculateScore(sequence, userSequence);
+    setScore(score);
   };
 
-  const saveScore = async () => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/test-score', { score: totalScore }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      toast.success(response.data.message);
-      setTestCompleted(true);
-      localStorage.setItem('totalScore', totalScore);
-      localStorage.setItem('testCompleted', 'true');
-      localStorage.setItem('kauffmanTestCompleted', 'true'); 
-    } catch (error) {
-      console.error('Error saving score:', error.response.data); 
-      toast.error('Error saving score!');
-    }
+  const calculateScore = (original, user) => {
+    // Calculate the number of correct items in sequence
+    return user.reduce((acc, item, index) => {
+      return item.id === original[index].id ? acc + 1 : acc;
+    }, 0);
   };
-  
+
+  const playSound = (sound) => {
+    const audio = new Audio(sound);
+    audio.play();
+  };
 
   return (
-    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
-      <ToastContainer />
-      <h2 className="text-4xl font-bold text-blue-800 mb-8 text-center">Kauffman Memory Test</h2>
+    <div>
+      <h1>Memory Test</h1>
+      <div>
+        <button onClick={() => setTestType('icons')}>Test with Icons</button>
+        <button onClick={() => setTestType('words')}>Test with Words</button>
+        <button onClick={() => setTestType('audio')}>Test with Audio</button>
+      </div>
 
-      {isLoggedIn ? (
-        <>
-          {testCompleted ? (
-            <div className="flex justify-center items-center h-full">
-              <div className="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full transform transition-transform hover:scale-105 duration-300">
-                <h3 className="text-3xl font-semibold text-center text-purple-600 mb-4">Test Results</h3>
-                <div className="flex flex-col items-center">
-                  <div className="text-5xl font-bold text-green-600 mb-4">{totalScore}</div>
-                  <p className="text-lg text-gray-700">Total Score out of {shapeColorSequences.length}</p>
-                  <p className="text-md text-gray-500 mt-4">Great job completing the test!</p>
-                </div>
+      {isRevealing ? (
+        <div>
+          <h2>Memorize this sequence:</h2>
+          <div className="sequence" style={{ display: 'flex', gap: '10px' }}>
+            {sequence.map((item, index) => (
+              <div key={index} style={{ fontSize: '30px' }}>
+                {testType === 'icons' && item.icon}
+                {testType === 'words' && <span>{item.word}</span>}
+                {testType === 'audio' && (
+                  <button onClick={() => playSound(item.sound)}>Play</button>
+                )}
               </div>
-            </div>
-          ) : (
-            <>
-              {showSequence ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="flex space-x-4">
-                    {currentSequence.map((item, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          backgroundColor: item.color,
-                          width: '100px',
-                          height: '100px',
-                          borderRadius: item.shape === 'circle' ? '50%' : '0',
-                          clipPath:
-                            item.shape === 'triangle'
-                              ? 'polygon(50% 0%, 0% 100%, 100% 100%)'
-                              : 'none',
-                        }}
-                        className="transition-transform duration-300 transform hover:scale-110"
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <p className="text-lg text-gray-700 mb-4">Select the shapes and colors in the order you saw them:</p>
-                  <div className="grid grid-cols-3 gap-4 mt-4">
-                    {shapes.map((shape) =>
-                      colors.map((color) => (
-                        <button
-                          key={`${shape}-${color}`}
-                          className={`w-24 h-24 ${shape === 'circle' ? 'rounded-full' : ''} border m-2 transition-transform transform hover:scale-105`}
-                          style={{
-                            backgroundColor: color,
-                            clipPath: shape === 'triangle' ? 'polygon(50% 0%, 0% 100%, 100% 100%)' : 'none',
-                          }}
-                          onClick={() => handleSelection(shape, color)}
-                        >
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </>
+            ))}
+          </div>
+        </div>
       ) : (
-        <p className="text-red-500 text-center">Please login to access this test.</p>
+        <div>
+          <h2>Enter the sequence:</h2>
+          <div className="options" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {(testType === 'icons' ? icons : testType === 'words' ? words : audio).map((item, index) => (
+              <button
+                key={index}
+                onClick={() => handleUserInput(item)}
+                style={{ fontSize: '30px', padding: '10px', cursor: 'pointer' }}
+              >
+                {testType === 'icons' && item.icon}
+                {testType === 'words' && item.word}
+                {testType === 'audio' && 'Play Sound'}
+              </button>
+            ))}
+          </div>
+          <button onClick={handleSubmit}>Submit</button>
+        </div>
       )}
+      
+      {score !== null && <h2>Your Score: {score}/{sequence.length}</h2>}
     </div>
   );
 };
 
-export default KauffmanMemoryTest;
+export default MemoryTest;

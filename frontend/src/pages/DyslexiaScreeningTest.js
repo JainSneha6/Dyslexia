@@ -6,13 +6,13 @@ const tests = [
   {
     title: 'Phonological Awareness Test',
     description: 'A test designed to evaluate the ability to recognize and manipulate the sounds of spoken language.',
+    link:'/phonological-awareness-test',
     icon: <FaSoundcloud className="text-blue-700 text-5xl" />,
   },
   {
     title: 'Kauffman Assessment Battery Test',
     description: 'A comprehensive assessment used to evaluate memory and cognitive abilities, helping identify learning differences.',
     link: '/kauffman-memory-test',
-    localStorageKey: 'kauffmanTestCompleted', // Key for tracking completion
     icon: <FaBrain className="text-green-700 text-5xl" />,
   },
   {
