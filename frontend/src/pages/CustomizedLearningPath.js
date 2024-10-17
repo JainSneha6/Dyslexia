@@ -44,7 +44,7 @@ const CustomizedLearningPathsPage = () => {
   }, []);
 
   return (
-    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8">
+    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <h2 className="text-2xl font-semibold text-blue-700 mb-4">Customized Learning Paths</h2>
       <div className="grid grid-cols-1 gap-6">
         {learningPaths.map((path, index) => (

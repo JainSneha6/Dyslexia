@@ -3,6 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import paragraphs from '../utils/ReadingParagraphs';
+import AudioPlayer from '../components/AudioPlayer';
 
 const ReadingAssistanceTool = () => {
   const [isReading, setIsReading] = useState(false);
@@ -96,7 +97,7 @@ const ReadingAssistanceTool = () => {
     setReadingTime(timeTaken);
     setIsTestCompleted(true);
 
-    const wordsInPassage = paragraphs[currentParagraph].split(' ').length;
+    const wordsInPassage = paragraphs[currentParagraph].text.split(' ').length;
     const speed = (wordsInPassage / (timeTaken / 60)).toFixed(2);
     setReadingSpeed(speed);
 
@@ -217,6 +218,8 @@ const ReadingAssistanceTool = () => {
   };
 
   const handleWordClick = async (word) => {
+    const audio = new Audio('/sounds/click.mp3');
+    audio.play();
     try {
       const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
       const data = response.data[0];
@@ -232,13 +235,15 @@ const ReadingAssistanceTool = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8 flex flex-col items-center">
+    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <ToastContainer />
       <h2 className="text-4xl font-bold text-blue-800 mb-8 text-center">Reading Assistance Tool</h2>
+      
 
       {currentParagraph === null ? (
         <section className="grid grid-cols-1 gap-6 w-full max-w-4xl">
           <h3 className="text-xl font-bold mb-4 text-center">Select a paragraph to read:</h3>
+
           {paragraphs.map((paragraph, index) => (
             <div
               key={index}
@@ -249,7 +254,7 @@ const ReadingAssistanceTool = () => {
               <h3 className="text-xl font-bold text-blue-700 mb-2">
                 {`Paragraph ${index + 1}`}
               </h3>
-              <p className="text-gray-600">{paragraph.substring(0, 100)}...</p>
+              <p className="text-gray-600">{paragraph.text.substring(0, 100)}...</p>
             </div>
           ))}
         </section>
@@ -257,8 +262,20 @@ const ReadingAssistanceTool = () => {
         <div className={`bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full mx-auto text-center 
           ${isVisible ? 'opacity-100 animate-fadeIn' : 'opacity-0'}`}>
           <h3 className="text-xl font-bold mb-4">Read the following passage:</h3>
+          
+          {currentParagraph !== null && (
+            <div className="mt-4 flex flex-col items-center">
+              <img src={paragraphs[currentParagraph].image} 
+                alt="GIF related to the passage" 
+                className="my-2 " 
+                style={{ width: '600px', height: '300px' }} />
+              <AudioPlayer audio={paragraphs[currentParagraph].voice}/>
+            </div>
+          )}
+
+
           <div className="text-gray-700 mb-4" style={dyslexiaFriendlyFont}>
-            {paragraphs[currentParagraph].split('. ').map((sentence, index) => (
+            {paragraphs[currentParagraph].text.split('. ').map((sentence, index) => (
               <div 
                 key={index} 
                 className="flex justify-between items-center mb-2 flex-wrap">

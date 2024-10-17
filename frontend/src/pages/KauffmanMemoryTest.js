@@ -129,7 +129,7 @@ const KauffmanMemoryTest = () => {
   
 
   return (
-    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8">
+    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <ToastContainer />
       <h2 className="text-4xl font-bold text-blue-800 mb-8 text-center">Kauffman Memory Test</h2>
 

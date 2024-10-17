@@ -25,7 +25,7 @@ const DocumentSupport = () => {
     }, []);
 
     return (
-        <section className="bg-gradient-to-r from-yellow-100 via-pink-100 to-blue-100 min-h-screen p-8">
+        <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
             <div className="grid grid-cols-1 gap-8"> {/* Removed md:grid-cols-2 */}
                 {services.map((service, index) => (
                     <div

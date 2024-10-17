@@ -18,7 +18,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 p-4" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
         <h2 className="text-3xl font-bold text-center text-blue-800 mb-6">Create an Account</h2>
         <form onSubmit={handleSignup}>

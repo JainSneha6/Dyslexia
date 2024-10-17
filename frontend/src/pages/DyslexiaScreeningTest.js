@@ -44,7 +44,7 @@ const DyslexiaScreeningTestsPage = () => {
   }, []);
 
   return (
-    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8">
+    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <h2 className="text-2xl font-semibold text-blue-700 mb-4">Dyslexia Screening Tests</h2>
       <div className="grid grid-cols-1 gap-6">
         {tests.map((test, index) => (

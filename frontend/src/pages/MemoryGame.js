@@ -4,44 +4,51 @@ import { GiCherry, GiGrapes, GiWatermelon, GiStrawberry, GiPineapple, GiLion, Gi
 import { GiPotato, GiTomato, GiPeas, GiBellPepper } from 'react-icons/gi';
 import { FaCat, FaDog, FaHorse } from 'react-icons/fa';
 
+// Define stages with icons and appropriate colors
 const stages = {
   fruits: [
-    { icon: <FaAppleAlt />, name: 'Apple' },
-    { icon: <GiCherry />, name: 'Cherry' },
-    { icon: <GiGrapes />, name: 'Grapes' },
-    { icon: <GiWatermelon />, name: 'Watermelon' },
-    { icon: <GiStrawberry />, name: 'Strawberry' },
-    { icon: <GiPineapple />, name: 'Pineapple' }
+    { icon: <FaAppleAlt className="text-red-500" />, name: 'Apple' },
+    { icon: <GiCherry className="text-red-600" />, name: 'Cherry' },
+    { icon: <GiGrapes className="text-purple-500" />, name: 'Grapes' },
+    { icon: <GiWatermelon className="text-green-500" />, name: 'Watermelon' },
+    { icon: <GiStrawberry className="text-pink-500" />, name: 'Strawberry' },
+    { icon: <GiPineapple className="text-yellow-500" />, name: 'Pineapple' }
   ],
   animals: [
-    { icon: <FaCat />, name: 'Cat' },
-    { icon: <FaDog />, name: 'Dog' },
-    { icon: <FaHorse />, name: 'Horse' },
-    { icon: <GiLion />, name: 'Lion' },
-    { icon: <GiTiger />, name: 'Tiger' },
-    { icon: <GiElephant />, name: 'Elephant' },
+    { icon: <FaCat className="text-gray-700" />, name: 'Cat' },
+    { icon: <FaDog className="text-yellow-700" />, name: 'Dog' },
+    { icon: <FaHorse className="text-yellow-800" />, name: 'Horse' },
+    { icon: <GiLion className="text-yellow-600" />, name: 'Lion' },
+    { icon: <GiTiger className="text-orange-600" />, name: 'Tiger' },
+    { icon: <GiElephant className="text-gray-500" />, name: 'Elephant' },
   ],
   vegetables: [
-    { icon: <FaCarrot />, name: 'Carrot' },
-    { icon: <GiPotato />, name: 'Potato' },
-    { icon: <GiTomato />, name: 'Tomato' },
-    { icon: <GiPeas />, name: 'Peas' },
-    { icon: <FaPepperHot />, name: 'Pepper' },
-    { icon: <GiBellPepper />, name: 'BellPepper' },
+    { icon: <FaCarrot className="text-orange-500" />, name: 'Carrot' },
+    { icon: <GiPotato className="text-yellow-700" />, name: 'Potato' },
+    { icon: <GiTomato className="text-red-500" />, name: 'Tomato' },
+    { icon: <GiPeas className="text-green-500" />, name: 'Peas' },
+    { icon: <FaPepperHot className="text-red-600" />, name: 'Pepper' },
+    { icon: <GiBellPepper className="text-green-400" />, name: 'BellPepper' },
   ],
   vehicles: [
-    { icon: <FaCar />, name: 'Car' },
-    { icon: <FaBus />, name: 'Bus' },
-    { icon: <FaTrain />, name: 'Train' },
-    { icon: <FaBicycle />, name: 'Bicycle' },
-    { icon: <GiAirplane />, name: 'Airplane' },
-    { icon: <FaShip />, name: 'Ship' },
+    { icon: <FaCar className="text-blue-500" />, name: 'Car' },
+    { icon: <FaBus className="text-yellow-500" />, name: 'Bus' },
+    { icon: <FaTrain className="text-gray-700" />, name: 'Train' },
+    { icon: <FaBicycle className="text-green-500" />, name: 'Bicycle' },
+    { icon: <GiAirplane className="text-blue-400" />, name: 'Airplane' },
+    { icon: <FaShip className="text-blue-600" />, name: 'Ship' },
   ]
 };
 
 const generateCards = (selectedStage) => {
   const cardData = [...stages[selectedStage], ...stages[selectedStage]]; // Duplicate icons for pairs
   return cardData.sort(() => Math.random() - 0.5); // Shuffle the cards
+};
+
+// Function to play sound
+const playSound = (isCorrect) => {
+  const audio = new Audio(isCorrect ? '/sounds/correct.mp3' : '/sounds/incorrect.mp3');
+  audio.play();
 };
 
 const MemoryGame = () => {
@@ -63,6 +70,9 @@ const MemoryGame = () => {
       const [firstIndex, secondIndex] = flippedIndices;
       if (cards[firstIndex].name === cards[secondIndex].name) {
         setMatchedIndices((prev) => [...prev, firstIndex, secondIndex]);
+        playSound(true); // Play correct sound
+      } else {
+        playSound(false); // Play incorrect sound
       }
       setTimeout(() => setFlippedIndices([]), 1000);
       setMoves((prev) => prev + 1);
@@ -90,7 +100,7 @@ const MemoryGame = () => {
   };
 
   return (
-    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen flex flex-col items-center p-8">
+    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen flex flex-col items-center p-8" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <h1 className="text-3xl font-bold text-blue-700 mb-4">Memory Game</h1>
       {selectedStage === null ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
@@ -105,7 +115,7 @@ const MemoryGame = () => {
               </h2>
               <div className="flex justify-center mt-6">
                 {stages[stage].map(({ icon }, iconIndex) => (
-                  <span key={iconIndex} className="text-4xl mx-2 text-gray-700">
+                  <span key={iconIndex} className="text-4xl mx-2">
                     {icon}
                   </span>
                 ))}
@@ -140,7 +150,7 @@ const MemoryGame = () => {
                 onClick={() => handleCardClick(index)}
               >
                 {(flippedIndices.includes(index) || matchedIndices.includes(index)) && (
-                  <span className="text-5xl text-blue-700">{card.icon}</span>
+                  <span className="text-5xl">{card.icon}</span>
                 )}
               </div>
             ))}

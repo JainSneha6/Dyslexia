@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import os
 import google.generativeai as genai
@@ -290,6 +291,65 @@ def extract_key_points_from_gemini(text):
     except Exception as e:
         print(f"Error extracting key points: {e}")
         return []
+    
+@app.route('/api/ask', methods=['POST'])
+def ask():
+    data = request.get_json()
+    user_text = data.get('text')
+    user_image = data.get('image')
+    user_audio = data.get('audio')
+    
+    if user_image:
+        image_path = os.path.join('uploads', f'user_image')
+        audio_file.save(audio_path)
+    
+    if user_audio:
+        audio_file = request.files['audio']
+        audio_path = os.path.join('uploads', f'reading_test.wav')
+        audio_file.save(audio_path)
+    
+    try: 
+        if user_text:
+            prompt = (
+                '''Answer the question. Keep in mind that the person is a dyslexic person.
+                '''
+                f"'{user_text}'"
+            )
+            response = model.generate_content([prompt])
+            response = response.text.replace('**','').replace("*",'')
+            return jsonify(message='Text improved successfully!', response=response), 200
+        
+        elif user_text and user_image:
+            prompt = (
+                '''Answer the question looking at the text and the image. Keep in mind that the person is a dyslexic person.
+                '''
+                f"'{user_text}'"
+                )   
+            user_image_file = genai.upload_file(path=f'{user_image}')
+            response = model.generate_content([user_image_file, prompt])
+            return response.text.strip()
+            
+        elif user_image:
+            prompt = (
+                '''Answer the question looking at the image. Keep in mind that the person is a dyslexic person.
+                '''
+            )
+            user_image_file = genai.upload_file(path=f'{user_image}')
+            response = model.generate_content([user_image_file, prompt])
+            return response.text.strip()
+        
+        elif user_audio:
+            prompt = (
+                '''Answer the question looking at the image. Keep in mind that the person is a dyslexic person.
+                '''
+            )
+            user_image_file = genai.upload_file(path=f'{user_audio}')
+            response = model.generate_content([user_image_file, prompt])
+            return response.text.strip()
+    
+    except Exception as e:
+        print(f"Error generating content: {e}")
+        return jsonify(message='Error generating improved text!'), 500
     
     
 if __name__ == '__main__':

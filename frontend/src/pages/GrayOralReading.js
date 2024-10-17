@@ -131,7 +131,7 @@ const GrayOralReadingTest = () => {
   }, [isTestCompleted, audioBlob]); 
 
   return (
-    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8 flex flex-col items-center">
+    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <ToastContainer />
       <h2 className="text-4xl font-bold text-blue-800 mb-8 text-center">Gray Oral Reading Test</h2>
 

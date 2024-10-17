@@ -16,6 +16,8 @@ import ModerateLearningPathPage from './pages/ModerateLearningPath';
 import MemoryGame from './pages/MemoryGame';
 import SevereLearningPathPage from './pages/SevereLearningPath';
 import PhonologicalAwarenessAssistant from './pages/PhonologicalAssistant';
+import ReadingComprehension from './pages/ReadingComprehension';
+import Chatbot from './pages/Chatbot';
 
 function App() {
   return (
@@ -36,7 +38,9 @@ function App() {
           <Route path='/moderate-learning-path' element={<ModerateLearningPathPage/>} />
           <Route path='/severe-learning-path' element={<SevereLearningPathPage/>} />
           <Route path='/phonological-assistant' element={<PhonologicalAwarenessAssistant/>} />
+          <Route path='/reading-comprehension' element={<ReadingComprehension/>} />
           <Route path='/memory-game' element={<MemoryGame/>} />
+          <Route path='/chatbot' element={<Chatbot/>} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
         </Routes>

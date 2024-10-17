@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaCheckCircle, FaBook, FaHeadphones, FaPencilAlt } from 'react-icons/fa'; // Icons for the cards
+import {  FaHeadphones,  FaBookOpen} from 'react-icons/fa'; // Icons for the cards
 
 const readingAssistanceOptions = [
   {
@@ -8,7 +8,13 @@ const readingAssistanceOptions = [
     description: 'Utilize audio resources that read text aloud to help improve comprehension and fluency.',
     link: '/reading-assistance',
     icon: <FaHeadphones className="text-blue-700 text-5xl" />,
-  }
+  },
+  {
+    title: 'Reading Comprehension',
+    description: 'Improve understanding and retention of text through various passages and questions.',
+    link: '/reading-comprehension',
+    icon: <FaBookOpen className="text-orange-700 text-5xl" />, // Use an appropriate icon
+  },
 ];
 
 const MildLearningPathPage = () => {
@@ -32,7 +38,7 @@ const MildLearningPathPage = () => {
   }, []);
 
   return (
-    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8">
+    <section className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
       <h2 className="text-2xl font-semibold text-blue-700 mb-4">Mild Learning Path: Reading Assistance</h2>
       <div className="grid grid-cols-1 gap-6">
         {readingAssistanceOptions.map((option, index) => (
