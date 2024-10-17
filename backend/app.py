@@ -106,6 +106,7 @@ def extract_fluency_rating(response_text):
         print("Error extracting fluency rating:", response_text)
         return 0
     
+
 @app.route('/api/writing-assistant', methods=['POST'])
 @jwt_required()
 def writing_assistant():
@@ -115,24 +116,38 @@ def writing_assistant():
     if not user:
         return jsonify(message='Unauthorized!'), 401
 
-    data = request.get_json()
-    user_text = data.get('text')
+    user_text = request.form.get('text')
+    image_file = request.files.get('image')
 
-    if not user_text:
-        return jsonify(message='No text provided!'), 400
+    if not user_text and not image_file:
+        return jsonify(message='No text or image provided!'), 400
 
-    prompt = (
-        "Improve the coherence for the following text: "
-        f"'{user_text}'"
-    )
+    # Process the text
+    improved_text = ""
 
-    try:
-        response = model.generate_content([prompt])
-        improved_text = response.text
-        return jsonify(message='Text improved successfully!', improved_text=improved_text), 200
-    except Exception as e:
-        print(f"Error generating content: {e}")
-        return jsonify(message='Error generating improved text!'), 500
+
+    if user_text:
+        prompt = f"Improve the coherence for the following text: '{user_text}'"
+        try:
+            response = model.generate_content([prompt])
+            improved_text = response.text
+        except Exception as e:
+            print(f"Error generating content for text: {e}")
+            return jsonify(message='Error generating improved text!'), 500
+
+    # If an image is provided, you can implement image processing here
+    elif image_file:
+        try:    
+            image_path = save_file(image_file, 'user_image')
+            prompt = f"Improve the coherence for the following text in the image given:"
+            response = handle_gemini_prompt(file_path=image_path, text_prompt=prompt)
+            return jsonify(message='Response generated successfully!', improved_text=response), 200
+        except Exception as e:
+            print(f"Error generating content for text: {e}")
+            return jsonify(message='Error generating improved text!'), 500
+
+    return jsonify(message='Text improved successfully!', improved_text=improved_text), 200
+
     
 @app.route('/api/writing-assistant-spelling', methods=['POST'])
 @jwt_required()
@@ -143,11 +158,10 @@ def writing_assistant_spelling():
     if not user:
         return jsonify(message='Unauthorized!'), 401
 
-    data = request.get_json()
-    user_text = data.get('text')
+    user_text = request.form.get('text')
+    image_file = request.files.get('image')
 
-    if not user_text:
-        return jsonify(message='No text provided!'), 400
+    
 
     prompt = (
         '''Tell the user about the spelling mistakes and sentence formation mistakes for the given text.
@@ -156,13 +170,28 @@ def writing_assistant_spelling():
         f"'{user_text}'"
     )
 
-    try:
-        response = model.generate_content([prompt])
-        improved_text = response.text.replace('**','').replace("*",'')
-        return jsonify(message='Text improved successfully!', improved_text=improved_text), 200
-    except Exception as e:
-        print(f"Error generating content: {e}")
-        return jsonify(message='Error generating improved text!'), 500
+    if user_text:
+        try:
+            response = model.generate_content([prompt])
+            improved_text = response.text.replace('**','').replace("*",'')
+            return jsonify(message='Text improved successfully!', improved_text=improved_text), 200
+        except Exception as e:
+            print(f"Error generating content: {e}")
+            return jsonify(message='Error generating improved text!'), 500
+
+    # If an image is provided, you can implement image processing here
+    elif image_file:
+        try:    
+            image_path = save_file(image_file, 'user_image')
+            prompt = f'''Tell the user about the spelling mistakes and sentence formation mistakes for the given text.
+        Provide in a short and concise way keeping in mind this is for a dyslexic person.'''
+            response = handle_gemini_prompt(file_path=image_path, text_prompt=prompt)
+            return jsonify(message='Response generated successfully!', improved_text=response), 200
+        except Exception as e:
+            print(f"Error generating content for text: {e}")
+            return jsonify(message='Error generating improved text!'), 500
+
+    
 
 @app.route('/api/upload-pdf', methods=['POST'])
 @jwt_required()
@@ -292,60 +321,58 @@ def extract_key_points_from_gemini(text):
         print(f"Error extracting key points: {e}")
         return []
     
+def save_file(file, prefix):
+    """Save the file securely and return its path."""
+    filename = secure_filename(f"{prefix}_{file.filename}")
+    filepath = os.path.join('uploads', filename)
+    file.save(filepath)
+    return filepath
+
+def handle_gemini_prompt(file_path=None, text_prompt=None):
+    """Send the file or text to Gemini AI for processing."""
+    try:
+        # Upload file if present
+        if file_path:
+            uploaded_file = genai.upload_file(path=file_path)
+            response = model.generate_content([uploaded_file, text_prompt])
+        else:
+            response = model.generate_content([text_prompt])
+        
+        return response.text.replace('**', '').replace('*', '').strip()
+    except Exception as e:
+        print(f"Error generating content: {e}")
+        return "Error generating content."
+    
 @app.route('/api/ask', methods=['POST'])
 def ask():
-    data = request.get_json()
-    user_text = data.get('text')
-    user_image = data.get('image')
-    user_audio = data.get('audio')
     
-    if user_image:
-        image_path = os.path.join('uploads', f'user_image')
-        audio_file.save(audio_path)
+    user_text = request.form.get('text')
+    print(user_text)
+    user_image = request.files.get('image') if 'image' in request.files else None
+    print(user_image)
+    user_audio = request.files.get('audio') if 'audio' in request.files else None
+    print(user_audio)
     
-    if user_audio:
-        audio_file = request.files['audio']
-        audio_path = os.path.join('uploads', f'reading_test.wav')
-        audio_file.save(audio_path)
-    
-    try: 
-        if user_text:
-            prompt = (
-                '''Answer the question. Keep in mind that the person is a dyslexic person.
-                '''
-                f"'{user_text}'"
-            )
-            response = model.generate_content([prompt])
-            response = response.text.replace('**','').replace("*",'')
-            return jsonify(message='Text improved successfully!', response=response), 200
-        
-        elif user_text and user_image:
-            prompt = (
-                '''Answer the question looking at the text and the image. Keep in mind that the person is a dyslexic person.
-                '''
-                f"'{user_text}'"
-                )   
-            user_image_file = genai.upload_file(path=f'{user_image}')
-            response = model.generate_content([user_image_file, prompt])
-            return response.text.strip()
-            
+    try:
+        if user_text and user_image:
+            image_path = save_file(user_image, 'user_image')
+            prompt = f"Answer the question using the text and image for a dyslexic person: '{user_text}'"
+            response = handle_gemini_prompt(file_path=image_path, text_prompt=prompt)
+        elif user_text:
+            prompt = f"Answer the question for a dyslexic person: '{user_text}'"
+            response = handle_gemini_prompt(text_prompt=prompt)
         elif user_image:
-            prompt = (
-                '''Answer the question looking at the image. Keep in mind that the person is a dyslexic person.
-                '''
-            )
-            user_image_file = genai.upload_file(path=f'{user_image}')
-            response = model.generate_content([user_image_file, prompt])
-            return response.text.strip()
-        
+            image_path = save_file(user_image, 'user_image')
+            prompt = "Answer the question using the image for a dyslexic person."
+            response = handle_gemini_prompt(file_path=image_path, text_prompt=prompt)
         elif user_audio:
-            prompt = (
-                '''Answer the question looking at the image. Keep in mind that the person is a dyslexic person.
-                '''
-            )
-            user_image_file = genai.upload_file(path=f'{user_audio}')
-            response = model.generate_content([user_image_file, prompt])
-            return response.text.strip()
+            audio_path = save_file(user_audio, 'user_audio')
+            prompt = "Answer the question asked in the the audio by a dyslexic person."
+            response = handle_gemini_prompt(file_path=audio_path, text_prompt=prompt)
+        else:
+            return jsonify(message='No valid input provided!'), 400
+            
+        return jsonify(message='Response generated successfully!', response=response), 200
     
     except Exception as e:
         print(f"Error generating content: {e}")

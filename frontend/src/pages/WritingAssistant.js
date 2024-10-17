@@ -8,9 +8,15 @@ const WritingAssistant = () => {
   const [improvedText, setImprovedText] = useState('');
   const [loadingText, setLoadingText] = useState(false);
   const [loadingSpelling, setLoadingSpelling] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
 
   const handleTextChange = (event) => {
     setUserText(event.target.value);
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    setImageFile(file);
   };
 
   const handleImproveText = async () => {
@@ -23,13 +29,18 @@ const WritingAssistant = () => {
       return;
     }
 
+    const formData = new FormData();
+    if (userText) formData.append('text', userText);
+    if (imageFile) formData.append('image', imageFile);
+
     try {
       const response = await axios.post(
         'http://localhost:5000/api/writing-assistant',
-        { text: userText },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
           },
         }
       );
@@ -52,13 +63,18 @@ const WritingAssistant = () => {
       return;
     }
 
+    const formData = new FormData();
+    if (userText) formData.append('text', userText);
+    if (imageFile) formData.append('image', imageFile);
+
     try {
       const response = await axios.post(
         'http://localhost:5000/api/writing-assistant-spelling',
-        { text: userText },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
           },
         }
       );
@@ -82,6 +98,14 @@ const WritingAssistant = () => {
         value={userText}
         onChange={handleTextChange}
         placeholder="Enter your text here..."
+      />
+
+      {/* File input for image */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+        className="mb-4 border-2 border-purple-300 rounded-xl p-2"
       />
 
       <div className="flex flex-row gap-4 mt-2">
