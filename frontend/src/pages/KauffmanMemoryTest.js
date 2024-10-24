@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { FaApple, FaDog, FaCar, FaRocket, FaCat, FaFish } from 'react-icons/fa';
+import { FaApple, FaDog, FaCar, FaRocket, FaCat, FaFish, FaPlay } from 'react-icons/fa';
 
 const MemoryTest = () => {
   const [sequence, setSequence] = useState([]);
   const [userSequence, setUserSequence] = useState([]);
   const [isRevealing, setIsRevealing] = useState(true);
   const [score, setScore] = useState(null);
-  const [testType, setTestType] = useState('icons'); // 'icons', 'words', or 'audio'
-  const sequenceLength = 4; // Length of the sequence to display
+  const [testType, setTestType] = useState('audio'); // Default to 'audio'
+  const [showPlayIcon, setShowPlayIcon] = useState(true); // State to control play icon visibility
+  const [optionsRevealed, setOptionsRevealed] = useState(false); // To control option reveal
+  const sequenceLength = 4;
 
   // Sample datasets
   const icons = [
@@ -42,11 +44,6 @@ const MemoryTest = () => {
     const dataset = testType === 'icons' ? icons : testType === 'words' ? words : audio;
     const randomSequence = generateRandomSequence(dataset, sequenceLength);
     setSequence(randomSequence);
-    
-    // Hide the sequence after 10 seconds to challenge the user's memory
-    setTimeout(() => {
-      setIsRevealing(false);
-    }, 10000);
   }, [testType]);
 
   const generateRandomSequence = (dataArray, length) => {
@@ -55,73 +52,128 @@ const MemoryTest = () => {
     return shuffled.slice(0, length);
   };
 
+  const playAudioSequence = async (sequence) => {
+    for (const item of sequence) {
+      const audioElement = new Audio(item.sound);
+      await new Promise((resolve) => {
+        audioElement.play();
+        audioElement.onended = resolve; // Wait for audio to finish
+      });
+    }
+    setShowPlayIcon(false); // Hide play icon after playback
+  };
+
+  const playSound = (sound) => {
+    const audioElement = new Audio(sound);
+    audioElement.play();
+  };
+
   const handleUserInput = (item) => {
     setUserSequence((prev) => [...prev, item]);
   };
 
   const handleSubmit = () => {
-    // Calculate the score based on user input directly in the frontend
     const score = calculateScore(sequence, userSequence);
     setScore(score);
   };
 
   const calculateScore = (original, user) => {
-    // Calculate the number of correct items in sequence
     return user.reduce((acc, item, index) => {
       return item.id === original[index].id ? acc + 1 : acc;
     }, 0);
   };
 
-  const playSound = (sound) => {
-    const audio = new Audio(sound);
-    audio.play();
+  const handleStartTest = async () => {
+    // Reset user input and reveal options
+    setUserSequence([]);
+    setIsRevealing(true);
+    setShowPlayIcon(true); // Show the play icon again
+    setOptionsRevealed(false);
+
+    // Generate a new sequence
+    const dataset = testType === 'icons' ? icons : testType === 'words' ? words : audio;
+    const randomSequence = generateRandomSequence(dataset, sequenceLength);
+    setSequence(randomSequence);
+
+    // For audio tests, play the sequence
+    if (testType === 'audio') {
+      await playAudioSequence(randomSequence); // Wait for audio to finish
+    }
+
+    // For icons and words, reveal options immediately
+    if (testType === 'icons' || testType === 'words') {
+      setIsRevealing(false);
+      setOptionsRevealed(true);
+    }
   };
 
   return (
-    <div>
-      <h1>Memory Test</h1>
-      <div>
-        <button onClick={() => setTestType('icons')}>Test with Icons</button>
-        <button onClick={() => setTestType('words')}>Test with Words</button>
-        <button onClick={() => setTestType('audio')}>Test with Audio</button>
-      </div>
+    <div className="bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 min-h-screen p-8 flex flex-col items-center" style={{ fontFamily: 'OpenDyslexic', lineHeight: '1.5' }}>
+      <h1 className="text-5xl font-semibold text-blue-700 mb-8">Memory Test</h1>
 
-      {isRevealing ? (
-        <div>
-          <h2>Memorize this sequence:</h2>
-          <div className="sequence" style={{ display: 'flex', gap: '10px' }}>
-            {sequence.map((item, index) => (
-              <div key={index} style={{ fontSize: '30px' }}>
-                {testType === 'icons' && item.icon}
-                {testType === 'words' && <span>{item.word}</span>}
-                {testType === 'audio' && (
-                  <button onClick={() => playSound(item.sound)}>Play</button>
-                )}
+      <div className="w-full max-w-3xl flex flex-col bg-white rounded-3xl shadow-lg overflow-hidden" style={{ height: '80vh' }}>
+        <div className="flex-grow p-6 overflow-y-auto space-y-4">
+          <div className="flex justify-center space-x-4 mb-4">
+            <button onClick={() => setTestType('icons')} className="bg-purple-500 text-white rounded-lg px-4 py-2">Test with Icons</button>
+            <button onClick={() => setTestType('words')} className="bg-purple-500 text-white rounded-lg px-4 py-2">Test with Words</button>
+            <button onClick={() => setTestType('audio')} className="bg-purple-500 text-white rounded-lg px-4 py-2">Test with Audio</button>
+          </div>
+
+          {/* Start Test Button */}
+          <button onClick={handleStartTest} className="mt-4 bg-blue-500 text-white rounded-lg px-4 py-2">
+            Start Test
+          </button>
+
+          {isRevealing ? (
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Memorize this sequence:</h2>
+              {testType === 'audio' && showPlayIcon && (
+                <button onClick={handleStartTest} className="mt-4 bg-blue-500 text-white rounded-lg px-4 py-2 flex items-center">
+                  <FaPlay className="mr-2" /> Play
+                </button>
+              )}
+              <div className="sequence flex gap-4">
+                {sequence.map((item, index) => (
+                  <div key={index} className="text-3xl">
+                    {testType === 'icons' && item.icon}
+                    {testType === 'words' && <span>{item.word}</span>}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div>
+              {optionsRevealed && (
+                <div>
+                  <h2 className="text-lg font-semibold mb-2">Enter the sequence:</h2>
+                  <div className="options flex gap-4 flex-wrap">
+                    {icons.map((item, index) => (
+                      <div key={index} className="flex items-center">
+                        <button onClick={() => handleUserInput(item)} className="text-3xl bg-purple-100 rounded-lg p-2 cursor-pointer hover:bg-purple-200 transition mr-2">
+                          {item.icon}
+                        </button>
+                        {/* Sound button for each item */}
+                        <button onClick={() => playSound(audio.find((a) => a.id === item.id)?.sound)} className="text-l rounded-lg p-1 hover:bg-green-200 transition">
+                          <FaPlay />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={handleSubmit} className="mt-4 bg-blue-500 text-white rounded-lg px-4 py-2">
+                    Submit
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      ) : (
-        <div>
-          <h2>Enter the sequence:</h2>
-          <div className="options" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {(testType === 'icons' ? icons : testType === 'words' ? words : audio).map((item, index) => (
-              <button
-                key={index}
-                onClick={() => handleUserInput(item)}
-                style={{ fontSize: '30px', padding: '10px', cursor: 'pointer' }}
-              >
-                {testType === 'icons' && item.icon}
-                {testType === 'words' && item.word}
-                {testType === 'audio' && 'Play Sound'}
-              </button>
-            ))}
+
+        {score !== null && (
+          <div className="p-4 bg-gray-100 border-t border-gray-200">
+            <h2 className="text-xl">Your Score: {score}/{sequence.length}</h2>
           </div>
-          <button onClick={handleSubmit}>Submit</button>
-        </div>
-      )}
-      
-      {score !== null && <h2>Your Score: {score}/{sequence.length}</h2>}
+        )}
+      </div>
     </div>
   );
 };

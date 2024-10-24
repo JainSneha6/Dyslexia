@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/api/login', { email, password });
       const token = response.data.access_token;
-      localStorage.setItem('token', token); 
+      localStorage.setItem('token', token);
       toast.success(response.data.message);
+
+      navigate('/');
     } catch (error) {
       toast.error(error.response?.data.message || 'An error occurred');
     }
