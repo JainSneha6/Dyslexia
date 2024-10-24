@@ -69,10 +69,12 @@ const MemoryTest = () => {
   };
 
   const handleUserInput = (item) => {
-    setUserSequence((prev) => [...prev, item]);
+    setUserSequence((prev) => [...prev, { id: item.id }]); // Only push the id
   };
 
   const handleSubmit = () => {
+    console.log(sequence);
+    console.log(userSequence)
     const score = calculateScore(sequence, userSequence);
     setScore(score);
   };
@@ -85,19 +87,23 @@ const MemoryTest = () => {
 
   const handleStartTest = async () => {
     // Reset user input and reveal options
+    console.log(testType)
     setUserSequence([]);
     setIsRevealing(true);
     setShowPlayIcon(true); // Show the play icon again
     setOptionsRevealed(false);
 
     // Generate a new sequence
-    const dataset = testType === 'icons' ? icons : testType === 'words' ? words : audio;
-    const randomSequence = generateRandomSequence(dataset, sequenceLength);
-    setSequence(randomSequence);
+
 
     // For audio tests, play the sequence
     if (testType === 'audio') {
-      await playAudioSequence(randomSequence); // Wait for audio to finish
+      const dataset = testType === 'icons' ? icons : testType === 'words' ? words : audio;
+      const randomSequence = generateRandomSequence(dataset, sequenceLength);
+      setSequence(randomSequence);
+      await playAudioSequence(randomSequence);
+      setIsRevealing(false);
+      setOptionsRevealed(true);// Wait for audio to finish
     }
 
     // For icons and words, reveal options immediately
@@ -146,19 +152,40 @@ const MemoryTest = () => {
               {optionsRevealed && (
                 <div>
                   <h2 className="text-lg font-semibold mb-2">Enter the sequence:</h2>
+
+                  {/* Render options based on testType */}
                   <div className="options flex gap-4 flex-wrap">
-                    {icons.map((item, index) => (
-                      <div key={index} className="flex items-center">
-                        <button onClick={() => handleUserInput(item)} className="text-3xl bg-purple-100 rounded-lg p-2 cursor-pointer hover:bg-purple-200 transition mr-2">
-                          {item.icon}
-                        </button>
-                        {/* Sound button for each item */}
-                        <button onClick={() => playSound(audio.find((a) => a.id === item.id)?.sound)} className="text-l rounded-lg p-1 hover:bg-green-200 transition">
-                          <FaPlay />
-                        </button>
-                      </div>
-                    ))}
+                    {testType === 'icons' &&
+                      icons.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                          <button onClick={() => handleUserInput(item)} className="text-3xl bg-purple-100 rounded-lg p-2 cursor-pointer hover:bg-purple-200 transition mr-2">
+                            {item.icon}
+                          </button>
+                        </div>
+                      ))}
+
+                    {testType === 'words' &&
+                      words.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                          <button onClick={() => handleUserInput(item)} className="text-2xl bg-purple-100 rounded-lg p-2 cursor-pointer hover:bg-purple-200 transition mr-2">
+                            {item.word}
+                          </button>
+                        </div>
+                      ))}
+
+                    {testType === 'audio' &&
+                      audio.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                          <button onClick={() => handleUserInput(item)} className="text-3xl bg-purple-100 rounded-lg p-2 cursor-pointer hover:bg-purple-200 transition mr-2">
+                            {icons.find((icon) => icon.id === item.id)?.icon}
+                          </button>
+                          <button onClick={() => playSound(item.sound)} className="text-l rounded-lg p-1 hover:bg-green-200 transition">
+                            <FaPlay />
+                          </button>
+                        </div>
+                      ))}
                   </div>
+
                   <button onClick={handleSubmit} className="mt-4 bg-blue-500 text-white rounded-lg px-4 py-2">
                     Submit
                   </button>

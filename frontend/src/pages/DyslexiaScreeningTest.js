@@ -6,7 +6,7 @@ const tests = [
   {
     title: 'Phonological Awareness Test',
     description: 'A test designed to evaluate the ability to recognize and manipulate the sounds of spoken language.',
-    link:'/phonological-awareness-test',
+    link: '/phonological-awareness-test',
     icon: <FaSoundcloud className="text-blue-700 text-5xl" />,
   },
   {

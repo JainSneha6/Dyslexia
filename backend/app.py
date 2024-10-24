@@ -299,6 +299,7 @@ def upload_pdf_notes():
     ), 200
 
 def generate_notes(text):
+    print(text)
     prompt = (
         "Generate proper notes from the text provided.:\n"
         f"'{text}'"
