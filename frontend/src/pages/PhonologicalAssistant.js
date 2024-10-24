@@ -19,7 +19,18 @@ const shuffleArray = (array) => {
 
 // This function checks if the selected tiles form the correct word
 const isCorrectSpelling = (tiles, correctWord) => {
-  return JSON.stringify(tiles.slice(0, correctWord.length).sort()) === JSON.stringify(correctWord.sort());
+  return tiles.slice(0, correctWord.length).join('') === correctWord.join('');
+};
+
+// Function to check if two tiles are adjacent in a 3x3 grid
+const areTilesAdjacent = (index1, index2) => {
+  const row1 = Math.floor(index1 / 3);
+  const col1 = index1 % 3;
+  const row2 = Math.floor(index2 / 3);
+  const col2 = index2 % 3;
+
+  // Check if the tiles are in adjacent rows or columns
+  return (Math.abs(row1 - row2) === 1 && col1 === col2) || (Math.abs(col1 - col2) === 1 && row1 === row2);
 };
 
 const PuzzleGame = () => {
@@ -39,7 +50,8 @@ const PuzzleGame = () => {
   const handleTileClick = (index) => {
     if (selectedTile === null) {
       setSelectedTile(index);
-    } else {
+    } else if (areTilesAdjacent(selectedTile, index)) {
+      // Swap tiles only if they are adjacent
       const newTiles = tiles.slice();
       [newTiles[selectedTile], newTiles[index]] = [newTiles[index], newTiles[selectedTile]];
       setTiles(newTiles);
@@ -52,6 +64,9 @@ const PuzzleGame = () => {
       } else {
         playSound(false); // Play the incorrect sound
       }
+    } else {
+      // If tiles are not adjacent, just deselect the current tile
+      setSelectedTile(null);
     }
   };
 
