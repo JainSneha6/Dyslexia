@@ -3,5 +3,5 @@ Flask-CORS==3.0.10
 mysql-connector-python==8.0.33
 werkzeug==2.2.3
 Flask-JWT-Extended==4.4.4
-google-generativeai==0.1.2 
+google-generativeai
 gunicorn==20.1.0 
