@@ -60,7 +60,7 @@ const DocumentSimplifier = () => {
                 return;
             }
 
-            const response = await axios.post('http://localhost:5000/api/upload-pdf', dataToSend, {
+            const response = await axios.post('http://65.20.88.229/api/upload-pdf', dataToSend, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,

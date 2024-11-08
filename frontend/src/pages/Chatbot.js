@@ -55,7 +55,7 @@ const Chatbot = () => {
     setMessages([...messages, { sender: 'user', content: text }]);
 
     try {
-      const res = await axios.post('http://127.0.0.1:5000/api/ask', formData, {
+      const res = await axios.post('http://65.20.88.229/api/ask', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

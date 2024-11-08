@@ -77,7 +77,7 @@ const GrayOralReadingTest = () => {
 
     try {
       await axios.post(
-        'http://localhost:5000/api/save-reading-results',
+        'http://65.20.88.229/api/save-reading-results',
         { readingSpeed: speed, timeTaken },
         {
           headers: {
@@ -108,7 +108,7 @@ const GrayOralReadingTest = () => {
     formData.append('audio', audioBlob, 'reading-test.wav');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/upload-audio', formData, {
+      const response = await axios.post('http://65.20.88.229/api/upload-audio', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

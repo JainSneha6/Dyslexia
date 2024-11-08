@@ -54,7 +54,7 @@ const Test1 = () => {
       formData.append('image', blob, 'signature.png');
       formData.append('word', currentWord);
 
-      const res = await fetch('http://localhost:5000/api/upload_image', {
+      const res = await fetch('http://65.20.88.229/api/upload_image', {
         method: 'POST',
         body: formData,
       });
@@ -95,7 +95,7 @@ const Test1 = () => {
 
   const submitResults = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/submit_results', {
+      const res = await fetch('http://65.20.88.229/api/submit_results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -35,7 +35,7 @@ const WritingAssistant = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/writing-assistant',
+        'http://65.20.88.229/api/writing-assistant',
         formData,
         {
           headers: {
@@ -69,7 +69,7 @@ const WritingAssistant = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/writing-assistant-spelling',
+        'http://65.20.88.229/api/writing-assistant-spelling',
         formData,
         {
           headers: {
