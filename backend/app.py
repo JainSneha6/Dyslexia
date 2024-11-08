@@ -14,7 +14,7 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://65.20.67.24/"}})
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://65.20.67.24"}})
 
 app.config['JWT_SECRET_KEY'] = 'super-secret-key'  
 jwt = JWTManager(app) 
